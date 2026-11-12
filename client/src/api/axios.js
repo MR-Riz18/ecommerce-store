@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// In production the backend lives on its own host (Render); VITE_API_URL
+// points the built frontend at it. Unset in dev — Vite proxies /api.
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
   timeout: 15000,
 });
 

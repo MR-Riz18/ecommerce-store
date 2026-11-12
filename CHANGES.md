@@ -139,3 +139,13 @@ the product. Category cards had the same problem.
 — it wipes and re-creates the products, so the old picsum images are
 replaced. Your existing orders, users and coupons are also wiped by the
 seed, as before, so only re-seed on a fresh database.
+
+---
+
+## 5. Hosting readiness — 2026-11-12
+
+- `client/src/api/axios.js` — the API address now comes from
+  `VITE_API_URL` when set (`<api>/api`), falling back to `/api` in dev.
+- `client/src/utils/format.js` — `imgUrl()` prefixes backend-hosted
+  paths (e.g. `/uploads/...`) with `VITE_API_URL` when set.
+- `client/.env.example` — created, documenting `VITE_API_URL`.

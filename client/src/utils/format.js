@@ -56,10 +56,14 @@ const PLACEHOLDER_IMG =
 export const imgUrl = (p) => {
   if (!p) return PLACEHOLDER_IMG;
   if (typeof p !== 'string') return PLACEHOLDER_IMG;
-  if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('/')) {
+  if (p.startsWith('http://') || p.startsWith('https://')) {
     return p;
   }
-  return `/${p}`;
+  // Uploaded images live on the backend (e.g. /uploads/xxx.jpg). In
+  // production the backend is a separate host, so prefix its address.
+  // Unset in dev — the Vite proxy serves /uploads from localhost.
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  return `${apiUrl}${p.startsWith('/') ? p : `/${p}`}`;
 };
 
 /** Join class names, dropping falsy values */
