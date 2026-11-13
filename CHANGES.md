@@ -1,5 +1,17 @@
 # CHANGES — ShopNova (ecommerce-store) modernised — 2026-11-11
 
+## Fix added 2026-11-13 — Cancel order button was missing
+
+The server already had `PATCH /api/orders/:id/cancel` (only pending/confirmed
+orders; restores stock) and the client API already had `orderApi.cancel(id)`,
+but no page used it — the Order Details page had no Cancel button at all.
+Added to `client/src/pages/OrderDetails.jsx`: a red "Cancel order" button next
+to the status badge, shown only while the order is pending or confirmed. It
+asks for confirmation, calls `orderApi.cancel(id)`, and shows the updated
+(cancelled) order. Verified live 2026-11-13: placed a test COD order as the
+demo user, cancelled it through the same endpoint, order status is now
+`cancelled`.
+
 Fixed and modernised from the uploaded `ecommerce-store.zip`. No features, routes
 or branding were changed; the backend API contract was not changed — the client
 was aligned to the API the server actually exposes, and two small server gaps

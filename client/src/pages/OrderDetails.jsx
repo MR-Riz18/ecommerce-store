@@ -55,6 +55,8 @@ export default function OrderDetails() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +83,24 @@ export default function OrderDetails() {
     () => normalizeStatuses(ORDER_STATUSES).filter((s) => s.value !== 'cancelled'),
     []
   );
+
+  // Cancel this order (server allows it only while pending or confirmed).
+  // The server restores the items to stock and returns the updated order.
+  const handleCancel = async () => {
+    if (cancelling) return;
+    if (!window.confirm('Cancel this order? The items will go back in stock.')) return;
+    setCancelling(true);
+    setCancelError('');
+    try {
+      const res = await orderApi.cancel(id);
+      const body = getBody(res);
+      setOrder(body.order ?? body);
+    } catch (e) {
+      setCancelError(errMsg(e, 'Could not cancel this order.'));
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -151,10 +171,28 @@ export default function OrderDetails() {
             Placed {order.createdAt ? formatDate(order.createdAt) : '—'}
           </p>
         </div>
-        <span className={cx('rounded-full px-3 py-1 text-xs font-bold', statusStyle)}>
-          {prettyStatus(status)}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cx('rounded-full px-3 py-1 text-xs font-bold', statusStyle)}>
+            {prettyStatus(status)}
+          </span>
+          {!isCancelled && ['pending', 'confirmed'].includes(status) && (
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="btn-danger !px-4 !py-1.5 !text-xs"
+            >
+              {cancelling ? 'Cancelling…' : 'Cancel order'}
+            </button>
+          )}
+        </div>
       </div>
+
+      {cancelError && (
+        <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-800">
+          {cancelError}
+        </p>
+      )}
 
       {isCancelled ? (
         <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800">
